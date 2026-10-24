@@ -37,16 +37,23 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'rest_framework',
+    'django_filters',
+    'drf_spectacular',
+    'corsheaders',
+    'ambiente',
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware', # cadena de filtros por donde pasa cada peticion 
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    
 ]
 
 ROOT_URLCONF = 'config.urls'
@@ -102,9 +109,9 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/6.1/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'es-co' # el panel del admin y los errores salen en espanol
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'America/Bogota' #   las fechas se muestran en hora de Colombia (en la BD se guardan en UTC (tiempo universal coordinado), pero se muestra en la zona horaria de Bogota
 
 USE_I18N = True
 
@@ -124,4 +131,23 @@ MAILERS = {
     'default': {
         'BACKEND': 'django.core.mail.backends.console.EmailBackend',
     },
+}
+# permisos para el frontend, para que pueda hacer peticiones al backend
+CORS_ALLOWED_ORIGINS = [ #lista con los origenes del frontend 
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
+]
+# configuracion de DRF, para que use spectacular para describir los endpoints, y para que pueda filtrar y paginar los resultados
+REST_FRAMEWORK = {
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',#Que DRF use spectacular para describir los endpoints
+    'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend'],#Filtrar, por ejemplo ?zona=1, sin programarlo a mano
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 10,
+}
+
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'API Ambiente y Clima',
+    'DESCRIPTION': 'zonas, mediciones, alertas, recomendaciones',
+    'VERSION': '1.0.0',
+    
 }

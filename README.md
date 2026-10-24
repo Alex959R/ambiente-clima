@@ -6,7 +6,7 @@ recomendaciones a la comunidad.
 
 ## Integrantes
 - Alex - [@Alex959R](https://github.com/Alex959R)
-- Nombre companero - @usuario
+- Andres  - [@AndresVS95](https://github.com/AndresVS95)
 
 ## Tecnologias
 - **Backend:** Django + Django REST Framework + Swagger
