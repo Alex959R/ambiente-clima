@@ -225,14 +225,47 @@ export const recomendacionesService = {
 };
 
 // ============================================================================
-// 5. SERVICIO PROXY DE IA (Simulado en frontend hasta endpoint backend)
+// 5. SERVICIO PROXY DE IA (Django Backend Proxy)
 // ============================================================================
 /**
- * PENDIENTE EN BACKEND:
- * Endpoint `/api/ia/interpretar-medicion/` aún no implementado en Django.
- * Se mantiene esta simulación local controlada para no bloquear la interfaz.
+ * CONTRATO DEL PROXY DE IA:
+ * - Método: POST /api/mediciones/{id}/recomendacion-ia/
+ * - Body: Vacío (el backend consulta la medición por ID)
+ * - Respuesta OK: 201 con objeto Recomendacion { id, texto, origen: "ia", fecha_y_hora, medicion }
+ * - Medición no existe: 404
+ * - Error de proveedor IA / Gemini: 503 con {"detail": "No se pudo generar la recomendacion"}
  */
 export const iaProxyService = {
+  /**
+   * Solicita al backend Django generar una directriz con IA para la medición indicada.
+   */
+  async generarRecomendacionIA(medicionId: number): Promise<Recomendacion> {
+    const response = await fetch(`${API_BASE_URL}/mediciones/${medicionId}/recomendacion-ia/`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+    });
+
+    if (response.status === 404) {
+      throw new Error(`La medición #${medicionId} no existe en el sistema.`);
+    }
+
+    if (response.status === 503) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(
+        errorData.detail || 'El servicio de IA no se encuentra disponible temporalmente. Intente más tarde.'
+      );
+    }
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(
+        errorData.detail || `Error ${response.status}: No fue posible generar la recomendación con IA.`
+      );
+    }
+
+    return await response.json();
+  },
+
   async interpretarMedicion(payload: SolicitudInterpretacionIA): Promise<RespuestaInterpretacionIA> {
     await delay(1000);
     const targetMedicion = INITIAL_MEDICIONES.find((m) => m.id === payload.medicion_id);

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { Medicion, MedicionInput, Zona } from '../types';
-import { medicionesService, zonasService } from '../services/api';
+import { medicionesService, zonasService, iaProxyService } from '../services/api';
 import { MedicionCard } from '../components/mediciones/MedicionCard';
 import { MedicionFormModal } from '../components/mediciones/MedicionFormModal';
 import { LoadingSpinner } from '../components/common/LoadingSpinner';
@@ -12,6 +12,7 @@ export const MedicionesPage: React.FC = () => {
   const [zonas, setZonas] = useState<Zona[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [actionLoading, setActionLoading] = useState<boolean>(false);
+  const [generatingIAId, setGeneratingIAId] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
@@ -45,14 +46,13 @@ export const MedicionesPage: React.FC = () => {
 
   const triggerSuccess = (msg: string) => {
     setSuccessMessage(msg);
-    setTimeout(() => setSuccessMessage(null), 4000);
+    setTimeout(() => setSuccessMessage(null), 5000);
   };
 
   const handleCreateMedicion = async (data: MedicionInput) => {
     try {
       setActionLoading(true);
       const created = await medicionesService.createMedicion(data);
-      // Asociar nombre de zona para mostrar inmediatamente
       const zonaObj = zonas.find((z) => z.id === created.zona);
       const newMedicion = {
         ...created,
@@ -79,6 +79,21 @@ export const MedicionesPage: React.FC = () => {
       setError(err instanceof Error ? err.message : 'Error al eliminar medición');
     } finally {
       setActionLoading(false);
+    }
+  };
+
+  const handleGenerarIA = async (id: number) => {
+    try {
+      setGeneratingIAId(id);
+      setError(null);
+      const recomendacion = await iaProxyService.generarRecomendacionIA(id);
+      triggerSuccess(
+        `✨ Recomendación de IA generada: "${recomendacion.texto.substring(0, 80)}..." (Revisa la pestaña Recomendaciones)`
+      );
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Error al generar la recomendación con IA');
+    } finally {
+      setGeneratingIAId(null);
     }
   };
 
@@ -109,7 +124,7 @@ export const MedicionesPage: React.FC = () => {
         <div>
           <h1 className="page-title">Monitoreo de Mediciones Ambientales</h1>
           <p className="page-subtitle">
-            Registro en tiempo real de temperatura, calidad del aire, lluvia y niveles sonoros por territorio.
+            Registro de variables climáticas con asistencia de IA para generación de directrices inmediatas.
           </p>
         </div>
 
@@ -117,7 +132,7 @@ export const MedicionesPage: React.FC = () => {
           <button
             onClick={fetchData}
             className="btn btn-outline"
-            disabled={loading || actionLoading}
+            disabled={loading || actionLoading || generatingIAId !== null}
             title="Recargar mediciones"
           >
             <RefreshCw size={16} className={loading ? 'spinner' : ''} />
@@ -127,7 +142,7 @@ export const MedicionesPage: React.FC = () => {
           <button
             onClick={() => setIsModalOpen(true)}
             className="btn btn-primary"
-            disabled={actionLoading || zonas.length === 0}
+            disabled={actionLoading || generatingIAId !== null || zonas.length === 0}
             title={zonas.length === 0 ? 'Debes registrar al menos una zona primero' : 'Nueva medición'}
           >
             <Plus size={18} />
@@ -261,7 +276,9 @@ export const MedicionesPage: React.FC = () => {
                 medicion={m}
                 zonaNombre={zonaObj?.nombre_de_zona}
                 onDelete={handleDeleteMedicion}
+                onGenerarIA={handleGenerarIA}
                 isActionLoading={actionLoading}
+                isGeneratingIA={generatingIAId === m.id}
               />
             );
           })}

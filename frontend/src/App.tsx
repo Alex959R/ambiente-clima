@@ -58,20 +58,20 @@ export const App: React.FC = () => {
               <div style={{ background: 'var(--gray-50)', padding: '1rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--gray-200)' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#4f46e5', fontWeight: 600, marginBottom: '0.35rem' }}>
                   <Cpu size={18} />
-                  <span>Endpoint Pendiente</span>
+                  <span>Contrato del Endpoint</span>
                 </div>
                 <p style={{ fontSize: '0.85rem', color: 'var(--gray-600)' }}>
-                  Pendiente crear la vista en Django para <code>POST /api/ia/interpretar-medicion/</code>.
+                  <code>POST /api/mediciones/&#123;id&#125;/recomendacion-ia/</code> con respuesta 201 de Recomendación.
                 </p>
               </div>
 
               <div style={{ background: 'var(--gray-50)', padding: '1rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--gray-200)' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#4f46e5', fontWeight: 600, marginBottom: '0.35rem' }}>
                   <Bot size={18} />
-                  <span>Servicio Frontend</span>
+                  <span>Botón en Mediciones</span>
                 </div>
                 <p style={{ fontSize: '0.85rem', color: 'var(--gray-600)' }}>
-                  La función <code>iaProxyService.interpretarMedicion()</code> ya está declarada y lista para conectarse.
+                  Las tarjetas en <strong>Mediciones</strong> ya disponen del botón <strong>Generar IA</strong> con feedback de carga.
                 </p>
               </div>
             </div>

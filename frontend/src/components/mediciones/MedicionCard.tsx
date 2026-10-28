@@ -1,19 +1,23 @@
 import React from 'react';
 import { Medicion } from '../../types';
-import { Thermometer, Wind, CloudRain, Volume2, Trash2, Calendar, MapPin } from 'lucide-react';
+import { Thermometer, Wind, CloudRain, Volume2, Trash2, Calendar, MapPin, Sparkles, RefreshCw } from 'lucide-react';
 
 interface MedicionCardProps {
   medicion: Medicion;
   zonaNombre?: string;
   onDelete: (id: number) => void;
+  onGenerarIA: (id: number) => void;
   isActionLoading?: boolean;
+  isGeneratingIA?: boolean;
 }
 
 export const MedicionCard: React.FC<MedicionCardProps> = ({
   medicion,
   zonaNombre,
   onDelete,
+  onGenerarIA,
   isActionLoading = false,
+  isGeneratingIA = false,
 }) => {
   const getIconAndColor = (tipo: Medicion['tipo']) => {
     switch (tipo) {
@@ -108,16 +112,34 @@ export const MedicionCard: React.FC<MedicionCardProps> = ({
           <span>{formattedDate}</span>
         </div>
 
-        <button
-          onClick={() => onDelete(medicion.id)}
-          className="btn btn-sm btn-danger-outline"
-          disabled={isActionLoading}
-          title="Eliminar medición"
-          aria-label="Eliminar medición"
-        >
-          <Trash2 size={14} />
-          <span>Eliminar</span>
-        </button>
+        <div style={{ display: 'flex', gap: '0.4rem' }}>
+          <button
+            onClick={() => onGenerarIA(medicion.id)}
+            className="btn btn-sm btn-outline"
+            style={{ borderColor: '#8b5cf6', color: '#7c3aed', backgroundColor: '#f5f3ff' }}
+            disabled={isActionLoading || isGeneratingIA}
+            title="Generar recomendación asistida por IA para esta medición"
+            aria-label="Generar con IA"
+          >
+            {isGeneratingIA ? (
+              <RefreshCw size={14} className="spinner" />
+            ) : (
+              <Sparkles size={14} />
+            )}
+            <span>{isGeneratingIA ? 'IA...' : 'Generar IA'}</span>
+          </button>
+
+          <button
+            onClick={() => onDelete(medicion.id)}
+            className="btn btn-sm btn-danger-outline"
+            disabled={isActionLoading || isGeneratingIA}
+            title="Eliminar medición"
+            aria-label="Eliminar medición"
+          >
+            <Trash2 size={14} />
+            <span>Eliminar</span>
+          </button>
+        </div>
       </div>
     </article>
   );
