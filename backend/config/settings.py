@@ -136,6 +136,8 @@ MAILERS = {
 CORS_ALLOWED_ORIGINS = [ #lista con los origenes del frontend 
     "http://localhost:5173",
     "http://127.0.0.1:5173",
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
 ]
 # configuracion de DRF, para que use spectacular para describir los endpoints, y para que pueda filtrar y paginar los resultados
 REST_FRAMEWORK = {
